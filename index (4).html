@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ramais - Soufflet Malt</title>
+  
+  <!-- Tailwind via CDN -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  
+  <!-- Supabase via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- CSS Embutido -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('./5.png');
+      background-size: cover;
+      background-position: bottom right;
+      background-repeat: no-repeat;
+      z-index: -1; 
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #c8cdd6; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+    input:focus, select:focus, textarea:focus, button:focus-visible {
+      outline: 2px solid #cba34d;
+      outline-offset: 2px;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .toast-enter { animation: slideUp 0.2s ease; }
+    
+    .table-cell-emails {
+      max-width: 350px;
+      white-space: normal;
+      word-break: break-word;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="py-6 sm:py-8">
+
+  <!-- Header -->
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 mb-6">
+    <header class="rounded-2xl shadow-sm z-30 flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 bg-white border border-gray-200">
+      <div class="flex items-center gap-4">
+        <!-- LOGO -->
+        <img src="https://scotgrain.co.uk/wp-content/uploads/2025/06/Soufflet-Malt.png" alt="Soufflet Malt Logo" class="h-14 object-contain" onerror="this.style.display='none'">
+        
+        <div class="pl-5 border-l-2 border-gray-200">
+          <h1 class="text-2xl font-bold leading-tight uppercase tracking-wide text-[#9a762b]">Ramais</h1>
+          <p class="text-sm font-medium text-gray-500">Diretório Corporativo</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="exportCSV()" class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg font-medium border border-gray-200 text-gray-700 transition-colors hover:bg-gray-50">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> CSV
+        </button>
+        <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg font-medium border border-gray-200 text-gray-700 transition-colors hover:bg-gray-50">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Imprimir
+        </button>
+        
+        <!-- Botão Login Admin -->
+        <button id="btnLogin" onclick="openLoginModal()" class="flex items-center gap-2 px-5 py-2.5 text-sm rounded-lg font-medium border border-gray-200 text-gray-700 transition-colors hover:bg-gray-50 ml-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Admin
+        </button>
+        
+        <!-- Botão Logout -->
+        <button id="btnLogout" onclick="handleLogout()" class="hidden items-center gap-2 px-5 py-2.5 text-sm rounded-lg font-medium border border-gray-200 text-red-600 transition-colors hover:bg-red-50 ml-2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sair
+        </button>
+
+        <!-- Botão Novo Ramal -->
+        <button id="btnNovoRamal" onclick="openFormModal()" class="hidden items-center gap-2 px-5 py-2.5 text-base rounded-lg font-medium text-white transition-opacity hover:opacity-90 ml-2 shadow-md bg-[#cba34d]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> 
+          <span class="hidden sm:inline">Novo Ramal</span><span class="sm:hidden">Novo</span>
+        </button>
+      </div>
+    </header>
+  </div>
+
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 space-y-6">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <div class="relative flex-1">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </span>
+        <input id="searchInput" class="w-full rounded-xl pl-12 pr-5 py-3.5 text-base shadow-sm bg-white border border-gray-200 text-gray-900" placeholder="Buscar por nome, ramal, departamento..." oninput="handleSearch()">
+      </div>
+      <div class="flex items-center gap-3">
+        <select id="deptFilter" class="rounded-xl px-5 py-3.5 text-base font-medium shadow-sm bg-white border border-gray-200 text-gray-900" onchange="handleSearch()">
+          <option value="">Todos os departamentos</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="rounded-xl overflow-hidden shadow-lg bg-white border border-gray-200">
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[950px]">
+          <thead class="bg-gray-50 border-b-2 border-gray-200">
+            <tr>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/4" onclick="handleSort('nome')">Nome</th>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-32" onclick="handleSort('ramal')">Ramal</th>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/5" onclick="handleSort('departamento')">Departamento</th>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500">Email</th>
+              <th id="thAcoes" class="hidden px-5 py-4 text-right text-sm font-bold uppercase tracking-wider text-gray-500 w-24">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr><td colspan="5" class="py-16 text-center text-base font-medium text-gray-500">Carregando dados do Supabase...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Login Admin -->
+  <div id="loginModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0,0,0,0.55);">
+    <div class="w-full max-w-sm rounded-2xl shadow-2xl bg-white">
+      <div class="flex items-center justify-between px-7 py-5 border-b border-gray-200">
+        <h2 class="text-lg font-bold text-gray-900">Acesso Restrito</h2>
+        <button onclick="closeModal('loginModal')" class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="px-7 py-6">
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Usuário</label>
+            <input id="loginUser" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Senha</label>
+            <input id="loginPass" type="password" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" onclick="closeModal('loginModal')" class="px-5 py-2.5 text-base rounded-lg font-medium text-gray-700 bg-gray-200 transition-colors hover:bg-gray-300">Cancelar</button>
+            <button type="submit" class="px-5 py-2.5 text-base rounded-lg font-medium text-white bg-[#cba34d] transition-colors hover:opacity-90">Entrar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Formulário Ramal -->
+  <div id="formModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0,0,0,0.55);">
+    <div class="w-full max-w-lg rounded-2xl shadow-2xl bg-white">
+      <div class="flex items-center justify-between px-7 py-5 border-b border-gray-200">
+        <h2 id="modalTitle" class="text-lg font-bold text-gray-900">Novo Ramal</h2>
+        <button onclick="closeModal('formModal')" class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="px-7 py-6">
+        <form id="extensionForm" onsubmit="saveExtension(event)" class="space-y-5">
+          <input type="hidden" id="extId">
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Nome Completo *</label>
+            <input id="extNome" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
+          </div>
+          <div class="grid grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium mb-1.5 text-gray-600">Ramal *</label>
+              <input id="extRamal" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900 font-mono">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1.5 text-gray-600">Departamento *</label>
+              <select id="extDept" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900"></select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Email</label>
+            <input id="extContato" class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
+          </div>
+          <div class="flex justify-end gap-3 pt-4">
+            <button type="button" onclick="closeModal('formModal')" class="px-5 py-2.5 text-base rounded-lg font-medium text-gray-700 bg-gray-200 transition-colors hover:bg-gray-300">Cancelar</button>
+            <button type="submit" id="btnSalvar" class="px-5 py-2.5 text-base rounded-lg font-medium text-white bg-[#cba34d] transition-colors hover:opacity-90">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="hidden toast-enter fixed bottom-8 right-8 z-[100] flex items-center gap-3 rounded-xl px-5 py-4 text-base font-medium text-white shadow-xl"></div>
+
+  <!-- Script da Aplicação -->
+  <script>
+    // INICIALIZAÇÃO DO SUPABASE
+    const supabaseUrl = 'https://kmtswxjgxinyisymzmum.supabase.co'; // <-- COLE A URL AQUI
+    const supabaseAnonKey = 'sb_publishable_C7HDeQOd1bBFUzOXRXnMiQ_Qfh2fp_2'; // <-- COLE A CHAVE AQUI
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    let isAdmin = false;
+    let extensions = []; // Agora inicia vazio, sos dados vêm do banco
+
+    const DEPARTMENTS = ["Balança", "Fiscal", "RH", "Contabilidade", "Manutenção", "Processo", "QSE", "Financeiro", "Portaria", "Recepção", "Silos", "São Sebastião", "TI", "Qualidade", "Laboratório", "Segurança", "ComExt", "Compras", "Diretoria", "Operadores", "Refeitório", "Almoxarifado", "Vendas", "Sala de Integração", "Controladoria"];
+    
+    const DEPT_COLORS = { "Balança": "bg-stone-100 text-stone-700", "Fiscal": "bg-blue-100 text-blue-700", "RH": "bg-purple-100 text-purple-700", "Contabilidade": "bg-emerald-100 text-emerald-700", "Manutenção": "bg-orange-100 text-orange-700", "Processo": "bg-indigo-100 text-indigo-700", "QSE": "bg-teal-100 text-teal-700", "Financeiro": "bg-green-100 text-green-700", "Portaria": "bg-slate-100 text-slate-700", "Recepção": "bg-pink-100 text-pink-700", "Silos": "bg-amber-100 text-amber-700", "São Sebastião": "bg-cyan-100 text-cyan-700", "TI": "bg-blue-100 text-blue-800", "Qualidade": "bg-fuchsia-100 text-fuchsia-700", "Laboratório": "bg-violet-100 text-violet-700", "Segurança": "bg-red-100 text-red-700", "ComExt": "bg-sky-100 text-sky-700", "Compras": "bg-lime-100 text-lime-700", "Diretoria": "bg-yellow-100 text-yellow-800", "Operadores": "bg-zinc-100 text-zinc-700", "Refeitório": "bg-rose-100 text-rose-700", "Almoxarifado": "bg-neutral-100 text-neutral-700", "Vendas": "bg-green-100 text-green-800", "Sala de Integração": "bg-gray-100 text-gray-700", "Controladoria": "bg-blue-50 text-blue-900" };
+
+    let currentSort = { key: 'nome', dir: 'asc' };
+
+    window.onload = () => {
+      const deptSelect = document.getElementById('deptFilter');
+      const formDeptSelect = document.getElementById('extDept');
+      DEPARTMENTS.forEach(d => {
+        deptSelect.innerHTML += `<option value="${d}">${d}</option>`;
+        formDeptSelect.innerHTML += `<option value="${d}">${d}</option>`;
+      });
+      
+      if(sessionStorage.getItem('isAdmin_soufflet') === 'true') {
+        isAdmin = true;
+      }
+      
+      // Busca os dados do Supabase assim que a página carrega
+      fetchExtensions();
+    };
+
+    // FUNÇÃO PARA BUSCAR DADOS DO SUPABASE
+    async function fetchExtensions() {
+      const { data, error } = await supabaseClient
+        .from('ramais')
+        .select('*');
+
+      if (error) {
+        console.error("Erro ao carregar dados:", error);
+        showToast("Erro ao carregar dados do banco.", "error");
+        document.getElementById('table-body').innerHTML = `<tr><td colspan="5" class="py-16 text-center text-base font-medium text-red-500">Falha ao conectar com o banco de dados.</td></tr>`;
+      } else {
+        extensions = data;
+        render();
+      }
+    }
+
+    function updateHeaderUI() {
+      if (isAdmin) {
+        document.getElementById('btnLogin').classList.add('hidden');
+        document.getElementById('btnLogout').classList.remove('hidden');
+        document.getElementById('btnLogout').classList.add('flex');
+        
+        document.getElementById('btnNovoRamal').classList.remove('hidden');
+        document.getElementById('btnNovoRamal').classList.add('flex');
+        
+        document.getElementById('thAcoes').classList.remove('hidden');
+      } else {
+        document.getElementById('btnLogin').classList.remove('hidden');
+        document.getElementById('btnLogin').classList.add('flex');
+        
+        document.getElementById('btnLogout').classList.add('hidden');
+        document.getElementById('btnLogout').classList.remove('flex');
+        
+        document.getElementById('btnNovoRamal').classList.add('hidden');
+        document.getElementById('btnNovoRamal').classList.remove('flex');
+        
+        document.getElementById('thAcoes').classList.add('hidden');
+      }
+    }
+
+    function render() {
+      updateHeaderUI();
+      
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const deptFilter = document.getElementById('deptFilter').value;
+      
+      let filtered = extensions.filter(e => {
+        const matchDept = !deptFilter || e.departamento === deptFilter;
+        const matchQuery = !query || e.ramal.includes(query) || e.nome.toLowerCase().includes(query) || e.departamento.toLowerCase().includes(query);
+        return matchDept && matchQuery;
+      });
+
+      filtered.sort((a, b) => {
+        let valA = a[currentSort.key] || "", valB = b[currentSort.key] || "";
+        if(valA < valB) return currentSort.dir === 'asc' ? -1 : 1;
+        if(valA > valB) return currentSort.dir === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      
+      const colspanTotal = isAdmin ? 5 : 4;
+      
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${colspanTotal}" class="py-16 text-center text-base font-medium text-gray-500">Nenhum ramal encontrado.</td></tr>`;
+      } else {
+        filtered.forEach((ext, i) => {
+          const colorClass = DEPT_COLORS[ext.departamento] || "bg-gray-100 text-gray-700";
+          const borderStyle = i < filtered.length - 1 ? 'border-b border-gray-200' : '';
+          
+          let formatContato = ext.email && ext.email !== '—' ? ext.email.split(' / ').join('<br><br>') : '—';
+          
+          let acoesHTML = '';
+          if (isAdmin) {
+            acoesHTML = `
+              <td class="px-5 py-4">
+                <div class="flex items-center justify-end gap-2">
+                  <button onclick="openFormModal('${ext.id}')" class="rounded-lg p-2 text-[#cba34d] transition-colors hover:bg-yellow-50" title="Editar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button onclick="deleteExtension('${ext.id}')" class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500" title="Excluir">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                  </button>
+                </div>
+              </td>
+            `;
+          }
+
+          tbody.innerHTML += `
+            <tr class="${borderStyle} hover:bg-gray-50 transition-colors">
+              <td class="px-5 py-4 text-base font-medium text-gray-900">${ext.nome}</td>
+              <td class="px-5 py-4"><span class="text-base font-bold bg-gray-100 px-3 py-1.5 rounded-lg text-gray-900 font-mono">${ext.ramal}</span></td>
+              <td class="px-5 py-4"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${colorClass}">${ext.departamento}</span></td>
+              <td class="px-5 py-4 text-sm text-gray-600 font-mono table-cell-emails">${formatContato}</td>
+              ${acoesHTML}
+            </tr>
+          `;
+        });
+      }
+    }
+
+    function handleSearch() { render(); }
+    
+    function handleSort(key) {
+      if(currentSort.key === key) {
+        currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort = { key, dir: 'asc' };
+      }
+      render();
+    }
+
+    function openLoginModal() {
+      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('loginForm').reset();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById('loginUser').value;
+      const pass = document.getElementById('loginPass').value;
+
+      if (user === 'admin' && pass === 'soufflet') {
+        isAdmin = true;
+        sessionStorage.setItem('isAdmin_soufflet', 'true');
+        closeModal('loginModal');
+        showToast("Login realizado com sucesso!", "success");
+        render(); 
+      } else {
+        showToast("Usuário ou senha incorretos!", "error");
+      }
+    }
+
+    function handleLogout() {
+      isAdmin = false;
+      sessionStorage.removeItem('isAdmin_soufflet');
+      showToast("Sessão encerrada.", "success");
+      render(); 
+    }
+
+    function openFormModal(id = null) {
+      if (!isAdmin) return;
+      document.getElementById('formModal').classList.remove('hidden');
+      if(id) {
+        document.getElementById('modalTitle').innerText = "Editar Ramal";
+        const ext = extensions.find(e => e.id === id);
+        document.getElementById('extId').value = ext.id;
+        document.getElementById('extRamal').value = ext.ramal;
+        document.getElementById('extNome').value = ext.nome;
+        document.getElementById('extDept').value = ext.departamento;
+        document.getElementById('extContato').value = ext.email || "";
+      } else {
+        document.getElementById('modalTitle').innerText = "Novo Ramal";
+        document.getElementById('extensionForm').reset();
+        document.getElementById('extId').value = "";
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    // FUNÇÃO PARA SALVAR/ATUALIZAR NO SUPABASE
+    async function saveExtension(e) {
+      e.preventDefault();
+      if (!isAdmin) return;
+      
+      const id = document.getElementById('extId').value;
+      const ramal = document.getElementById('extRamal').value;
+      
+      if(extensions.some(ex => ex.ramal === ramal && ex.id !== id)) {
+        showToast("Este ramal já existe!", "error");
+        return;
+      }
+
+      const newData = {
+        ramal: ramal,
+        nome: document.getElementById('extNome').value,
+        departamento: document.getElementById('extDept').value,
+        email: document.getElementById('extContato').value
+      };
+
+      const btnSalvar = document.getElementById('btnSalvar');
+      btnSalvar.innerText = "Salvando...";
+      btnSalvar.disabled = true;
+
+      if (id) {
+        // Atualizar
+        const { error } = await supabaseClient
+          .from('ramais')
+          .update(newData)
+          .eq('id', id);
+          
+        if (error) {
+          showToast("Erro ao atualizar ramal.", "error");
+          console.error(error);
+        } else {
+          showToast("Ramal atualizado com sucesso!", "success");
+          fetchExtensions(); // Recarrega os dados atualizados
+        }
+      } else {
+        // Inserir novo
+        const { error } = await supabaseClient
+          .from('ramais')
+          .insert([newData]);
+          
+        if (error) {
+          showToast("Erro ao adicionar ramal.", "error");
+          console.error(error);
+        } else {
+          showToast("Ramal adicionado!", "success");
+          fetchExtensions(); // Recarrega os dados atualizados
+        }
+      }
+
+      btnSalvar.innerText = "Salvar";
+      btnSalvar.disabled = false;
+      closeModal('formModal');
+    }
+
+    // FUNÇÃO PARA DELETAR NO SUPABASE
+    async function deleteExtension(id) {
+      if (!isAdmin) return;
+      if(confirm("Tem certeza que deseja excluir este ramal?")) {
+        const { error } = await supabaseClient
+          .from('ramais')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          showToast("Erro ao excluir ramal.", "error");
+          console.error(error);
+        } else {
+          showToast("Ramal excluído.", "success");
+          fetchExtensions(); // Recarrega a lista sem o ramal excluído
+        }
+      }
+    }
+
+    let toastTimeout;
+    function showToast(msg, type) {
+      const toast = document.getElementById('toastContainer');
+      toast.innerText = msg;
+      toast.style.backgroundColor = type === 'error' ? '#ef4444' : '#22c55e';
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    function exportCSV() {
+      const header = ["Nome", "Ramal", "Departamento"];
+      const rows = extensions.map(e => [e.nome, e.ramal, e.departamento]);
+      
+      const csv = [header, ...rows]
+        .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";"))
+        .join("\n");
+      
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "ramais.csv";
+      link.click();
+    }
+  </script>
+</body>
+</html>
