@@ -126,10 +126,10 @@
           <thead class="bg-gray-50 border-b-2 border-gray-200">
             <tr>
               <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/4" onclick="handleSort('nome')">Nome</th>
-              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-32" onclick="handleSort('ramal')">Ramal</th>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-32" onclick="handleSort('ramal')">Ramais</th>
               <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/5" onclick="handleSort('departamento')">Departamento</th>
               <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500">Email</th>
-              <th id="thAcoes" class="hidden px-5 py-4 text-right text-sm font-bold uppercase tracking-wider text-gray-500 w-24">Ações</th>
+              <th id="thAcoes" class="hidden px-5 py-4 text-right text-sm font-bold uppercase tracking-wider text-gray-500 w-32">Ações</th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
@@ -211,12 +211,12 @@
   <!-- Script da Aplicação -->
   <script>
     // INICIALIZAÇÃO DO SUPABASE
-    const supabaseUrl = 'https://kmtswxjgxinyisymzmum.supabase.co'; // <-- COLE A URL AQUI
-    const supabaseAnonKey = 'sb_publishable_C7HDeQOd1bBFUzOXRXnMiQ_Qfh2fp_2'; // <-- COLE A CHAVE AQUI
+    const supabaseUrl = 'https://kmtswxjgxinyisymzmum.supabase.co';
+    const supabaseAnonKey = 'sb_publishable_C7HDeQOd1bBFUzOXRXnMiQ_Qfh2fp_2';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
     let isAdmin = false;
-    let extensions = []; // Agora inicia vazio, sos dados vêm do banco
+    let extensions = []; 
 
     const DEPARTMENTS = ["Balança", "Fiscal", "RH", "Contabilidade", "Manutenção", "Processo", "QSE", "Financeiro", "Portaria", "Recepção", "Silos", "São Sebastião", "TI", "Qualidade", "Laboratório", "Segurança", "ComExt", "Compras", "Diretoria", "Operadores", "Refeitório", "Almoxarifado", "Vendas", "Sala de Integração", "Controladoria"];
     
@@ -236,11 +236,9 @@
         isAdmin = true;
       }
       
-      // Busca os dados do Supabase assim que a página carrega
       fetchExtensions();
     };
 
-    // FUNÇÃO PARA BUSCAR DADOS DO SUPABASE
     async function fetchExtensions() {
       const { data, error } = await supabaseClient
         .from('ramais')
@@ -286,14 +284,42 @@
       const query = document.getElementById('searchInput').value.toLowerCase();
       const deptFilter = document.getElementById('deptFilter').value;
       
+      // Filtrar a lista bruta
       let filtered = extensions.filter(e => {
         const matchDept = !deptFilter || e.departamento === deptFilter;
         const matchQuery = !query || e.ramal.includes(query) || e.nome.toLowerCase().includes(query) || e.departamento.toLowerCase().includes(query);
         return matchDept && matchQuery;
       });
 
-      filtered.sort((a, b) => {
-        let valA = a[currentSort.key] || "", valB = b[currentSort.key] || "";
+      // LÓGICA MOVIDA A USUÁRIOS: Agrupar por nome
+      const usersMap = new Map();
+      filtered.forEach(ext => {
+        const key = ext.nome.trim();
+        if (!usersMap.has(key)) {
+          usersMap.set(key, {
+            nome: ext.nome,
+            departamento: ext.departamento,
+            email: ext.email,
+            ramais: []
+          });
+        }
+        usersMap.get(key).ramais.push({ id: ext.id, ramal: ext.ramal });
+      });
+
+      let usersArray = Array.from(usersMap.values());
+
+      // Ordenar a lista de usuários agrupados
+      usersArray.sort((a, b) => {
+        let valA, valB;
+        if (currentSort.key === 'ramal') {
+          // Se ordenar por ramal, utiliza o primeiro ramal do usuário
+          valA = a.ramais.length > 0 ? a.ramais[0].ramal : "";
+          valB = b.ramais.length > 0 ? b.ramais[0].ramal : "";
+        } else {
+          valA = a[currentSort.key] || "";
+          valB = b[currentSort.key] || "";
+        }
+        
         if(valA < valB) return currentSort.dir === 'asc' ? -1 : 1;
         if(valA > valB) return currentSort.dir === 'asc' ? 1 : -1;
         return 0;
@@ -304,38 +330,50 @@
       
       const colspanTotal = isAdmin ? 5 : 4;
       
-      if(filtered.length === 0) {
+      if(usersArray.length === 0) {
         tbody.innerHTML = `<tr><td colspan="${colspanTotal}" class="py-16 text-center text-base font-medium text-gray-500">Nenhum ramal encontrado.</td></tr>`;
       } else {
-        filtered.forEach((ext, i) => {
-          const colorClass = DEPT_COLORS[ext.departamento] || "bg-gray-100 text-gray-700";
-          const borderStyle = i < filtered.length - 1 ? 'border-b border-gray-200' : '';
+        usersArray.forEach((user, i) => {
+          const colorClass = DEPT_COLORS[user.departamento] || "bg-gray-100 text-gray-700";
+          const borderStyle = i < usersArray.length - 1 ? 'border-b border-gray-200' : '';
+          let formatContato = user.email && user.email !== '—' ? user.email.split(' / ').join('<br><br>') : '—';
           
-          let formatContato = ext.email && ext.email !== '—' ? ext.email.split(' / ').join('<br><br>') : '—';
+          // Ordenar ramais internos do usuário (opcional, para exibir em ordem lógica)
+          user.ramais.sort((a, b) => a.ramal.localeCompare(b.ramal));
+
+          let ramaisHTML = `<div class="flex flex-col gap-2">`;
+          let acoesHTML = `<div class="flex flex-col gap-2">`;
           
-          let acoesHTML = '';
-          if (isAdmin) {
-            acoesHTML = `
-              <td class="px-5 py-4">
-                <div class="flex items-center justify-end gap-2">
-                  <button onclick="openFormModal('${ext.id}')" class="rounded-lg p-2 text-[#cba34d] transition-colors hover:bg-yellow-50" title="Editar">
+          user.ramais.forEach(r => {
+            ramaisHTML += `<span class="text-base font-bold bg-gray-100 px-3 py-1.5 rounded-lg text-gray-900 font-mono w-max">${r.ramal}</span>`;
+            
+            if (isAdmin) {
+              // As ações ganham uma altura fixa correspondente a altura do badge do ramal, para manter o alinhamento
+              acoesHTML += `
+                <div class="flex items-center justify-end gap-2 h-[36px]">
+                  <button onclick="openFormModal('${r.id}')" class="rounded-lg p-1.5 text-[#cba34d] transition-colors hover:bg-yellow-50" title="Editar Ramal ${r.ramal}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </button>
-                  <button onclick="deleteExtension('${ext.id}')" class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500" title="Excluir">
+                  <button onclick="deleteExtension('${r.id}')" class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500" title="Excluir Ramal ${r.ramal}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                   </button>
                 </div>
-              </td>
-            `;
-          }
+              `;
+            }
+          });
+
+          ramaisHTML += `</div>`;
+          acoesHTML += `</div>`;
+
+          let tdAcoes = isAdmin ? `<td class="px-5 py-4 align-top w-32">${acoesHTML}</td>` : '';
 
           tbody.innerHTML += `
             <tr class="${borderStyle} hover:bg-gray-50 transition-colors">
-              <td class="px-5 py-4 text-base font-medium text-gray-900">${ext.nome}</td>
-              <td class="px-5 py-4"><span class="text-base font-bold bg-gray-100 px-3 py-1.5 rounded-lg text-gray-900 font-mono">${ext.ramal}</span></td>
-              <td class="px-5 py-4"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${colorClass}">${ext.departamento}</span></td>
-              <td class="px-5 py-4 text-sm text-gray-600 font-mono table-cell-emails">${formatContato}</td>
-              ${acoesHTML}
+              <td class="px-5 py-4 text-base font-medium text-gray-900 align-top">${user.nome}</td>
+              <td class="px-5 py-4 align-top w-32">${ramaisHTML}</td>
+              <td class="px-5 py-4 align-top"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${colorClass} mt-1">${user.departamento}</span></td>
+              <td class="px-5 py-4 text-sm text-gray-600 font-mono table-cell-emails align-top pt-5">${formatContato}</td>
+              ${tdAcoes}
             </tr>
           `;
         });
@@ -386,7 +424,7 @@
       document.getElementById('formModal').classList.remove('hidden');
       if(id) {
         document.getElementById('modalTitle').innerText = "Editar Ramal";
-        const ext = extensions.find(e => e.id === id);
+        const ext = extensions.find(e => e.id === id); // Busca o ramal correto pelo ID bruto original
         document.getElementById('extId').value = ext.id;
         document.getElementById('extRamal').value = ext.ramal;
         document.getElementById('extNome').value = ext.nome;
@@ -403,7 +441,6 @@
       document.getElementById(modalId).classList.add('hidden');
     }
 
-    // FUNÇÃO PARA SALVAR/ATUALIZAR NO SUPABASE
     async function saveExtension(e) {
       e.preventDefault();
       if (!isAdmin) return;
@@ -428,7 +465,6 @@
       btnSalvar.disabled = true;
 
       if (id) {
-        // Atualizar
         const { error } = await supabaseClient
           .from('ramais')
           .update(newData)
@@ -439,10 +475,9 @@
           console.error(error);
         } else {
           showToast("Ramal atualizado com sucesso!", "success");
-          fetchExtensions(); // Recarrega os dados atualizados
+          fetchExtensions(); 
         }
       } else {
-        // Inserir novo
         const { error } = await supabaseClient
           .from('ramais')
           .insert([newData]);
@@ -452,7 +487,7 @@
           console.error(error);
         } else {
           showToast("Ramal adicionado!", "success");
-          fetchExtensions(); // Recarrega os dados atualizados
+          fetchExtensions(); 
         }
       }
 
@@ -461,7 +496,6 @@
       closeModal('formModal');
     }
 
-    // FUNÇÃO PARA DELETAR NO SUPABASE
     async function deleteExtension(id) {
       if (!isAdmin) return;
       if(confirm("Tem certeza que deseja excluir este ramal?")) {
@@ -475,7 +509,7 @@
           console.error(error);
         } else {
           showToast("Ramal excluído.", "success");
-          fetchExtensions(); // Recarrega a lista sem o ramal excluído
+          fetchExtensions(); 
         }
       }
     }
@@ -490,9 +524,25 @@
       toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
+    // CSV Atualizado para respeitar também a visão focada em usuários
     function exportCSV() {
-      const header = ["Nome", "Ramal", "Departamento"];
-      const rows = extensions.map(e => [e.nome, e.ramal, e.departamento]);
+      const header = ["Nome", "Ramais", "Departamento", "Email"];
+      
+      const usersMap = new Map();
+      extensions.forEach(ext => {
+        const key = ext.nome.trim();
+        if (!usersMap.has(key)) {
+          usersMap.set(key, { nome: ext.nome, departamento: ext.departamento, email: ext.email, ramais: [] });
+        }
+        usersMap.get(key).ramais.push(ext.ramal);
+      });
+
+      const rows = Array.from(usersMap.values()).map(u => [
+        u.nome, 
+        u.ramais.join(", "), 
+        u.departamento, 
+        u.email || ""
+      ]);
       
       const csv = [header, ...rows]
         .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";"))
