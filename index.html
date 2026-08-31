@@ -3,11 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diretório de Usuários - Soufflet Malt</title>
+  <title>Ramais - Soufflet Malt</title>
   
+  <!-- Tailwind via CDN -->
   <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  
+  <!-- Supabase via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- CSS Embutido -->
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -61,13 +65,16 @@
 </head>
 <body class="py-6 sm:py-8">
 
+  <!-- Header -->
   <div class="mx-auto max-w-7xl px-4 sm:px-6 mb-6">
     <header class="rounded-2xl shadow-sm z-30 flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-5 bg-white border border-gray-200">
       <div class="flex items-center gap-4">
+        <!-- LOGO -->
         <img src="https://scotgrain.co.uk/wp-content/uploads/2025/06/Soufflet-Malt.png" alt="Soufflet Malt Logo" class="h-14 object-contain" onerror="this.style.display='none'">
+        
         <div class="pl-5 border-l-2 border-gray-200">
-          <h1 class="text-2xl font-bold leading-tight uppercase tracking-wide text-[#9a762b]">Equipe</h1>
-          <p class="text-sm font-medium text-gray-500">Diretório de Usuários</p>
+          <h1 class="text-2xl font-bold leading-tight uppercase tracking-wide text-[#9a762b]">Ramais</h1>
+          <p class="text-sm font-medium text-gray-500">Diretório Corporativo</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
@@ -77,15 +84,21 @@
         <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg font-medium border border-gray-200 text-gray-700 transition-colors hover:bg-gray-50">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Imprimir
         </button>
+        
+        <!-- Botão Login Admin -->
         <button id="btnLogin" onclick="openLoginModal()" class="flex items-center gap-2 px-5 py-2.5 text-sm rounded-lg font-medium border border-gray-200 text-gray-700 transition-colors hover:bg-gray-50 ml-2">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Admin
         </button>
+        
+        <!-- Botão Logout -->
         <button id="btnLogout" onclick="handleLogout()" class="hidden items-center gap-2 px-5 py-2.5 text-sm rounded-lg font-medium border border-gray-200 text-red-600 transition-colors hover:bg-red-50 ml-2">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sair
         </button>
-        <button id="btnNovoUsuario" onclick="openFormModal()" class="hidden items-center gap-2 px-5 py-2.5 text-base rounded-lg font-medium text-white transition-opacity hover:opacity-90 ml-2 shadow-md bg-[#cba34d]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg> 
-          <span class="hidden sm:inline">Novo Usuário</span><span class="sm:hidden">Novo</span>
+
+        <!-- Botão Novo Ramal -->
+        <button id="btnNovoRamal" onclick="openFormModal()" class="hidden items-center gap-2 px-5 py-2.5 text-base rounded-lg font-medium text-white transition-opacity hover:opacity-90 ml-2 shadow-md bg-[#cba34d]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg> 
+          <span class="hidden sm:inline">Novo Ramal</span><span class="sm:hidden">Novo</span>
         </button>
       </div>
     </header>
@@ -97,7 +110,7 @@
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         </span>
-        <input id="searchInput" class="w-full rounded-xl pl-12 pr-5 py-3.5 text-base shadow-sm bg-white border border-gray-200 text-gray-900" placeholder="Buscar por nome do usuário, ramal, departamento..." oninput="handleSearch()">
+        <input id="searchInput" class="w-full rounded-xl pl-12 pr-5 py-3.5 text-base shadow-sm bg-white border border-gray-200 text-gray-900" placeholder="Buscar por nome, ramal, departamento..." oninput="handleSearch()">
       </div>
       <div class="flex items-center gap-3">
         <select id="deptFilter" class="rounded-xl px-5 py-3.5 text-base font-medium shadow-sm bg-white border border-gray-200 text-gray-900" onchange="handleSearch()">
@@ -106,17 +119,17 @@
       </div>
     </div>
 
-    <!-- Tabela Atualizada -->
+    <!-- Table -->
     <div class="rounded-xl overflow-hidden shadow-lg bg-white border border-gray-200">
       <div class="overflow-x-auto">
         <table class="w-full min-w-[950px]">
           <thead class="bg-gray-50 border-b-2 border-gray-200">
             <tr>
-              <!-- Coluna unificando visualmente Nome e Ramal -->
-              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/3" onclick="handleSort('nome')">Usuário / Ramal</th>
-              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/4" onclick="handleSort('departamento')">Departamento</th>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/4" onclick="handleSort('nome')">Nome</th>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-32" onclick="handleSort('ramal')">Ramais</th>
+              <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500 cursor-pointer hover:opacity-70 w-1/5" onclick="handleSort('departamento')">Departamento</th>
               <th class="px-5 py-4 text-left text-sm font-bold uppercase tracking-wider text-gray-500">Email</th>
-              <th id="thAcoes" class="hidden px-5 py-4 text-right text-sm font-bold uppercase tracking-wider text-gray-500 w-24">Ações</th>
+              <th id="thAcoes" class="hidden px-5 py-4 text-right text-sm font-bold uppercase tracking-wider text-gray-500 w-32">Ações</th>
             </tr>
           </thead>
           <tbody id="table-body"></tbody>
@@ -125,7 +138,7 @@
     </div>
   </main>
 
-  <!-- Modais de Formulário e Login Omitidos para concisão (mesmo código que o anterior) -->
+  <!-- Modal Login Admin -->
   <div id="loginModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0,0,0,0.55);">
     <div class="w-full max-w-sm rounded-2xl shadow-2xl bg-white">
       <div class="flex items-center justify-between px-7 py-5 border-b border-gray-200">
@@ -136,54 +149,77 @@
       </div>
       <div class="px-7 py-6">
         <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-          <div><label class="block text-sm font-medium mb-1.5 text-gray-600">Usuário</label><input id="loginUser" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900"></div>
-          <div><label class="block text-sm font-medium mb-1.5 text-gray-600">Senha</label><input id="loginPass" type="password" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900"></div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Usuário</label>
+            <input id="loginUser" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Senha</label>
+            <input id="loginPass" type="password" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
+          </div>
           <div class="flex justify-end gap-3 pt-4">
-            <button type="button" onclick="closeModal('loginModal')" class="px-5 py-2.5 text-base rounded-lg font-medium text-gray-700 bg-gray-200 hover:bg-gray-300">Cancelar</button>
-            <button type="submit" class="px-5 py-2.5 text-base rounded-lg font-medium text-white bg-[#cba34d] hover:opacity-90">Entrar</button>
+            <button type="button" onclick="closeModal('loginModal')" class="px-5 py-2.5 text-base rounded-lg font-medium text-gray-700 bg-gray-200 transition-colors hover:bg-gray-300">Cancelar</button>
+            <button type="submit" class="px-5 py-2.5 text-base rounded-lg font-medium text-white bg-[#cba34d] transition-colors hover:opacity-90">Entrar</button>
           </div>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- Modal Formulário Ramal -->
   <div id="formModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background-color: rgba(0,0,0,0.55);">
     <div class="w-full max-w-lg rounded-2xl shadow-2xl bg-white">
       <div class="flex items-center justify-between px-7 py-5 border-b border-gray-200">
-        <h2 id="modalTitle" class="text-lg font-bold text-gray-900">Novo Usuário</h2>
-        <button onclick="closeModal('formModal')" class="rounded-lg p-2 text-gray-500 hover:bg-gray-100">
+        <h2 id="modalTitle" class="text-lg font-bold text-gray-900">Novo Ramal</h2>
+        <button onclick="closeModal('formModal')" class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div class="px-7 py-6">
-        <form id="userForm" onsubmit="saveUser(event)" class="space-y-5">
+        <form id="extensionForm" onsubmit="saveExtension(event)" class="space-y-5">
           <input type="hidden" id="extId">
-          <div><label class="block text-sm font-medium mb-1.5 text-gray-600">Nome do Usuário *</label><input id="extNome" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900"></div>
-          <div class="grid grid-cols-2 gap-5">
-            <div><label class="block text-sm font-medium mb-1.5 text-gray-600">Ramal *</label><input id="extRamal" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900 font-mono"></div>
-            <div><label class="block text-sm font-medium mb-1.5 text-gray-600">Departamento *</label><select id="extDept" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900"></select></div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Nome Completo *</label>
+            <input id="extNome" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
           </div>
-          <div><label class="block text-sm font-medium mb-1.5 text-gray-600">Email</label><input id="extContato" class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900"></div>
+          <div class="grid grid-cols-2 gap-5">
+            <div>
+              <label class="block text-sm font-medium mb-1.5 text-gray-600">Ramal *</label>
+              <input id="extRamal" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900 font-mono">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1.5 text-gray-600">Departamento *</label>
+              <select id="extDept" required class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900"></select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1.5 text-gray-600">Email</label>
+            <input id="extContato" class="w-full rounded-lg px-4 py-2.5 text-base border border-gray-300 bg-gray-50 text-gray-900">
+          </div>
           <div class="flex justify-end gap-3 pt-4">
-            <button type="button" onclick="closeModal('formModal')" class="px-5 py-2.5 text-base rounded-lg font-medium text-gray-700 bg-gray-200 hover:bg-gray-300">Cancelar</button>
-            <button type="submit" id="btnSalvar" class="px-5 py-2.5 text-base rounded-lg font-medium text-white bg-[#cba34d] hover:opacity-90">Salvar</button>
+            <button type="button" onclick="closeModal('formModal')" class="px-5 py-2.5 text-base rounded-lg font-medium text-gray-700 bg-gray-200 transition-colors hover:bg-gray-300">Cancelar</button>
+            <button type="submit" id="btnSalvar" class="px-5 py-2.5 text-base rounded-lg font-medium text-white bg-[#cba34d] transition-colors hover:opacity-90">Salvar</button>
           </div>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- Toast Container -->
   <div id="toastContainer" class="hidden toast-enter fixed bottom-8 right-8 z-[100] flex items-center gap-3 rounded-xl px-5 py-4 text-base font-medium text-white shadow-xl"></div>
 
+  <!-- Script da Aplicação -->
   <script>
+    // INICIALIZAÇÃO DO SUPABASE
     const supabaseUrl = 'https://kmtswxjgxinyisymzmum.supabase.co';
     const supabaseAnonKey = 'sb_publishable_C7HDeQOd1bBFUzOXRXnMiQ_Qfh2fp_2';
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
     let isAdmin = false;
-    let usersList = []; 
+    let extensions = []; 
 
     const DEPARTMENTS = ["Balança", "Fiscal", "RH", "Contabilidade", "Manutenção", "Processo", "QSE", "Financeiro", "Portaria", "Recepção", "Silos", "São Sebastião", "TI", "Qualidade", "Laboratório", "Segurança", "ComExt", "Compras", "Diretoria", "Operadores", "Refeitório", "Almoxarifado", "Vendas", "Sala de Integração", "Controladoria"];
+    
     const DEPT_COLORS = { "Balança": "bg-stone-100 text-stone-700", "Fiscal": "bg-blue-100 text-blue-700", "RH": "bg-purple-100 text-purple-700", "Contabilidade": "bg-emerald-100 text-emerald-700", "Manutenção": "bg-orange-100 text-orange-700", "Processo": "bg-indigo-100 text-indigo-700", "QSE": "bg-teal-100 text-teal-700", "Financeiro": "bg-green-100 text-green-700", "Portaria": "bg-slate-100 text-slate-700", "Recepção": "bg-pink-100 text-pink-700", "Silos": "bg-amber-100 text-amber-700", "São Sebastião": "bg-cyan-100 text-cyan-700", "TI": "bg-blue-100 text-blue-800", "Qualidade": "bg-fuchsia-100 text-fuchsia-700", "Laboratório": "bg-violet-100 text-violet-700", "Segurança": "bg-red-100 text-red-700", "ComExt": "bg-sky-100 text-sky-700", "Compras": "bg-lime-100 text-lime-700", "Diretoria": "bg-yellow-100 text-yellow-800", "Operadores": "bg-zinc-100 text-zinc-700", "Refeitório": "bg-rose-100 text-rose-700", "Almoxarifado": "bg-neutral-100 text-neutral-700", "Vendas": "bg-green-100 text-green-800", "Sala de Integração": "bg-gray-100 text-gray-700", "Controladoria": "bg-blue-50 text-blue-900" };
 
     let currentSort = { key: 'nome', dir: 'asc' };
@@ -196,17 +232,24 @@
         formDeptSelect.innerHTML += `<option value="${d}">${d}</option>`;
       });
       
-      if(sessionStorage.getItem('isAdmin_soufflet') === 'true') { isAdmin = true; }
-      fetchUsers();
+      if(sessionStorage.getItem('isAdmin_soufflet') === 'true') {
+        isAdmin = true;
+      }
+      
+      fetchExtensions();
     };
 
-    async function fetchUsers() {
-      const { data, error } = await supabaseClient.from('ramais').select('*');
+    async function fetchExtensions() {
+      const { data, error } = await supabaseClient
+        .from('ramais')
+        .select('*');
+
       if (error) {
+        console.error("Erro ao carregar dados:", error);
         showToast("Erro ao carregar dados do banco.", "error");
-        document.getElementById('table-body').innerHTML = `<tr><td colspan="4" class="py-16 text-center text-red-500">Falha na conexão.</td></tr>`;
+        document.getElementById('table-body').innerHTML = `<tr><td colspan="5" class="py-16 text-center text-base font-medium text-red-500">Falha ao conectar com o banco de dados.</td></tr>`;
       } else {
-        usersList = data;
+        extensions = data;
         render();
       }
     }
@@ -214,16 +257,23 @@
     function updateHeaderUI() {
       if (isAdmin) {
         document.getElementById('btnLogin').classList.add('hidden');
-        document.getElementById('btnLogout').classList.remove('hidden', 'flex');
+        document.getElementById('btnLogout').classList.remove('hidden');
         document.getElementById('btnLogout').classList.add('flex');
-        document.getElementById('btnNovoUsuario').classList.remove('hidden', 'flex');
-        document.getElementById('btnNovoUsuario').classList.add('flex');
+        
+        document.getElementById('btnNovoRamal').classList.remove('hidden');
+        document.getElementById('btnNovoRamal').classList.add('flex');
+        
         document.getElementById('thAcoes').classList.remove('hidden');
       } else {
-        document.getElementById('btnLogin').classList.remove('hidden', 'flex');
+        document.getElementById('btnLogin').classList.remove('hidden');
         document.getElementById('btnLogin').classList.add('flex');
+        
         document.getElementById('btnLogout').classList.add('hidden');
-        document.getElementById('btnNovoUsuario').classList.add('hidden');
+        document.getElementById('btnLogout').classList.remove('flex');
+        
+        document.getElementById('btnNovoRamal').classList.add('hidden');
+        document.getElementById('btnNovoRamal').classList.remove('flex');
+        
         document.getElementById('thAcoes').classList.add('hidden');
       }
     }
@@ -234,14 +284,42 @@
       const query = document.getElementById('searchInput').value.toLowerCase();
       const deptFilter = document.getElementById('deptFilter').value;
       
-      let filtered = usersList.filter(u => {
-        const matchDept = !deptFilter || u.departamento === deptFilter;
-        const matchQuery = !query || u.ramal.includes(query) || u.nome.toLowerCase().includes(query) || u.departamento.toLowerCase().includes(query);
+      // Filtrar a lista bruta
+      let filtered = extensions.filter(e => {
+        const matchDept = !deptFilter || e.departamento === deptFilter;
+        const matchQuery = !query || e.ramal.includes(query) || e.nome.toLowerCase().includes(query) || e.departamento.toLowerCase().includes(query);
         return matchDept && matchQuery;
       });
 
-      filtered.sort((a, b) => {
-        let valA = a[currentSort.key] || "", valB = b[currentSort.key] || "";
+      // LÓGICA MOVIDA A USUÁRIOS: Agrupar por nome
+      const usersMap = new Map();
+      filtered.forEach(ext => {
+        const key = ext.nome.trim();
+        if (!usersMap.has(key)) {
+          usersMap.set(key, {
+            nome: ext.nome,
+            departamento: ext.departamento,
+            email: ext.email,
+            ramais: []
+          });
+        }
+        usersMap.get(key).ramais.push({ id: ext.id, ramal: ext.ramal });
+      });
+
+      let usersArray = Array.from(usersMap.values());
+
+      // Ordenar a lista de usuários agrupados
+      usersArray.sort((a, b) => {
+        let valA, valB;
+        if (currentSort.key === 'ramal') {
+          // Se ordenar por ramal, utiliza o primeiro ramal do usuário
+          valA = a.ramais.length > 0 ? a.ramais[0].ramal : "";
+          valB = b.ramais.length > 0 ? b.ramais[0].ramal : "";
+        } else {
+          valA = a[currentSort.key] || "";
+          valB = b[currentSort.key] || "";
+        }
+        
         if(valA < valB) return currentSort.dir === 'asc' ? -1 : 1;
         if(valA > valB) return currentSort.dir === 'asc' ? 1 : -1;
         return 0;
@@ -249,42 +327,53 @@
 
       const tbody = document.getElementById('table-body');
       tbody.innerHTML = '';
-      const colspanTotal = isAdmin ? 4 : 3;
       
-      if(filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${colspanTotal}" class="py-16 text-center text-gray-500">Nenhum usuário encontrado.</td></tr>`;
+      const colspanTotal = isAdmin ? 5 : 4;
+      
+      if(usersArray.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${colspanTotal}" class="py-16 text-center text-base font-medium text-gray-500">Nenhum ramal encontrado.</td></tr>`;
       } else {
-        filtered.forEach((user, i) => {
+        usersArray.forEach((user, i) => {
           const colorClass = DEPT_COLORS[user.departamento] || "bg-gray-100 text-gray-700";
-          const borderStyle = i < filtered.length - 1 ? 'border-b border-gray-200' : '';
-          let formatContato = user.email && user.email !== '—' ? user.email.split(' / ').join('<br>') : '—';
+          const borderStyle = i < usersArray.length - 1 ? 'border-b border-gray-200' : '';
+          let formatContato = user.email && user.email !== '—' ? user.email.split(' / ').join('<br><br>') : '—';
           
-          let acoesHTML = '';
-          if (isAdmin) {
-            acoesHTML = `
-              <td class="px-5 py-4 align-middle">
-                <div class="flex items-center justify-end gap-2">
-                  <button onclick="openFormModal('${user.id}')" class="rounded-lg p-2 text-[#cba34d] hover:bg-yellow-50"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-                  <button onclick="deleteUser('${user.id}')" class="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-500"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
-                </div>
-              </td>
-            `;
-          }
+          // Ordenar ramais internos do usuário (opcional, para exibir em ordem lógica)
+          user.ramais.sort((a, b) => a.ramal.localeCompare(b.ramal));
 
-          // NOME E RAMAL NA MESMA COLUNA
+          let ramaisHTML = `<div class="flex flex-col gap-2">`;
+          let acoesHTML = `<div class="flex flex-col gap-2">`;
+          
+          user.ramais.forEach(r => {
+            ramaisHTML += `<span class="text-base font-bold bg-gray-100 px-3 py-1.5 rounded-lg text-gray-900 font-mono w-max">${r.ramal}</span>`;
+            
+            if (isAdmin) {
+              // As ações ganham uma altura fixa correspondente a altura do badge do ramal, para manter o alinhamento
+              acoesHTML += `
+                <div class="flex items-center justify-end gap-2 h-[36px]">
+                  <button onclick="openFormModal('${r.id}')" class="rounded-lg p-1.5 text-[#cba34d] transition-colors hover:bg-yellow-50" title="Editar Ramal ${r.ramal}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button onclick="deleteExtension('${r.id}')" class="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-500" title="Excluir Ramal ${r.ramal}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                  </button>
+                </div>
+              `;
+            }
+          });
+
+          ramaisHTML += `</div>`;
+          acoesHTML += `</div>`;
+
+          let tdAcoes = isAdmin ? `<td class="px-5 py-4 align-top w-32">${acoesHTML}</td>` : '';
+
           tbody.innerHTML += `
             <tr class="${borderStyle} hover:bg-gray-50 transition-colors">
-              <td class="px-5 py-4 align-middle">
-                <div class="flex items-center gap-3">
-                  <span class="text-base font-bold text-gray-900">${user.nome}</span>
-                  <span class="text-xs font-bold bg-gray-100 border border-gray-200 px-2 py-1 rounded-md text-gray-700 font-mono">Ramal ${user.ramal}</span>
-                </div>
-              </td>
-              <td class="px-5 py-4 align-middle">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${colorClass}">${user.departamento}</span>
-              </td>
-              <td class="px-5 py-4 text-sm text-gray-600 font-mono table-cell-emails align-middle">${formatContato}</td>
-              ${acoesHTML}
+              <td class="px-5 py-4 text-base font-medium text-gray-900 align-top">${user.nome}</td>
+              <td class="px-5 py-4 align-top w-32">${ramaisHTML}</td>
+              <td class="px-5 py-4 align-top"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold ${colorClass} mt-1">${user.departamento}</span></td>
+              <td class="px-5 py-4 text-sm text-gray-600 font-mono table-cell-emails align-top pt-5">${formatContato}</td>
+              ${tdAcoes}
             </tr>
           `;
         });
@@ -296,7 +385,9 @@
     function handleSort(key) {
       if(currentSort.key === key) {
         currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
-      } else { currentSort = { key, dir: 'asc' }; }
+      } else {
+        currentSort = { key, dir: 'asc' };
+      }
       render();
     }
 
@@ -307,82 +398,161 @@
 
     function handleLogin(e) {
       e.preventDefault();
-      if (document.getElementById('loginUser').value === 'admin' && document.getElementById('loginPass').value === 'soufflet') {
-        isAdmin = true; sessionStorage.setItem('isAdmin_soufflet', 'true');
-        closeModal('loginModal'); showToast("Sucesso!", "success"); render(); 
-      } else { showToast("Usuário/senha incorretos!", "error"); }
+      const user = document.getElementById('loginUser').value;
+      const pass = document.getElementById('loginPass').value;
+
+      if (user === 'admin' && pass === 'soufflet') {
+        isAdmin = true;
+        sessionStorage.setItem('isAdmin_soufflet', 'true');
+        closeModal('loginModal');
+        showToast("Login realizado com sucesso!", "success");
+        render(); 
+      } else {
+        showToast("Usuário ou senha incorretos!", "error");
+      }
     }
 
     function handleLogout() {
-      isAdmin = false; sessionStorage.removeItem('isAdmin_soufflet'); showToast("Sessão encerrada.", "success"); render(); 
+      isAdmin = false;
+      sessionStorage.removeItem('isAdmin_soufflet');
+      showToast("Sessão encerrada.", "success");
+      render(); 
     }
 
     function openFormModal(id = null) {
       if (!isAdmin) return;
       document.getElementById('formModal').classList.remove('hidden');
       if(id) {
-        document.getElementById('modalTitle').innerText = "Editar Usuário";
-        const user = usersList.find(u => u.id === id);
-        document.getElementById('extId').value = user.id;
-        document.getElementById('extRamal').value = user.ramal;
-        document.getElementById('extNome').value = user.nome;
-        document.getElementById('extDept').value = user.departamento;
-        document.getElementById('extContato').value = user.email || "";
+        document.getElementById('modalTitle').innerText = "Editar Ramal";
+        const ext = extensions.find(e => e.id === id); // Busca o ramal correto pelo ID bruto original
+        document.getElementById('extId').value = ext.id;
+        document.getElementById('extRamal').value = ext.ramal;
+        document.getElementById('extNome').value = ext.nome;
+        document.getElementById('extDept').value = ext.departamento;
+        document.getElementById('extContato').value = ext.email || "";
       } else {
-        document.getElementById('modalTitle').innerText = "Novo Usuário";
-        document.getElementById('userForm').reset();
+        document.getElementById('modalTitle').innerText = "Novo Ramal";
+        document.getElementById('extensionForm').reset();
         document.getElementById('extId').value = "";
       }
     }
 
-    function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
 
-    async function saveUser(e) {
+    async function saveExtension(e) {
       e.preventDefault();
       if (!isAdmin) return;
       
       const id = document.getElementById('extId').value;
       const ramal = document.getElementById('extRamal').value;
-      const nome = document.getElementById('extNome').value;
       
-      if(usersList.some(u => u.ramal === ramal && u.id !== id)) return showToast("Ramal em uso!", "error");
-      
-      const newData = { ramal, nome, departamento: document.getElementById('extDept').value, email: document.getElementById('extContato').value };
+      if(extensions.some(ex => ex.ramal === ramal && ex.id !== id)) {
+        showToast("Este ramal já existe!", "error");
+        return;
+      }
+
+      const newData = {
+        ramal: ramal,
+        nome: document.getElementById('extNome').value,
+        departamento: document.getElementById('extDept').value,
+        email: document.getElementById('extContato').value
+      };
+
       const btnSalvar = document.getElementById('btnSalvar');
-      btnSalvar.innerText = "Salvando..."; btnSalvar.disabled = true;
+      btnSalvar.innerText = "Salvando...";
+      btnSalvar.disabled = true;
 
-      const { error } = id ? await supabaseClient.from('ramais').update(newData).eq('id', id) : await supabaseClient.from('ramais').insert([newData]);
+      if (id) {
+        const { error } = await supabaseClient
+          .from('ramais')
+          .update(newData)
+          .eq('id', id);
           
-      if (error) { showToast("Erro!", "error"); console.error(error); } 
-      else { showToast("Sucesso!", "success"); fetchUsers(); }
+        if (error) {
+          showToast("Erro ao atualizar ramal.", "error");
+          console.error(error);
+        } else {
+          showToast("Ramal atualizado com sucesso!", "success");
+          fetchExtensions(); 
+        }
+      } else {
+        const { error } = await supabaseClient
+          .from('ramais')
+          .insert([newData]);
+          
+        if (error) {
+          showToast("Erro ao adicionar ramal.", "error");
+          console.error(error);
+        } else {
+          showToast("Ramal adicionado!", "success");
+          fetchExtensions(); 
+        }
+      }
 
-      btnSalvar.innerText = "Salvar"; btnSalvar.disabled = false;
+      btnSalvar.innerText = "Salvar";
+      btnSalvar.disabled = false;
       closeModal('formModal');
     }
 
-    async function deleteUser(id) {
+    async function deleteExtension(id) {
       if (!isAdmin) return;
-      if(confirm("Excluir usuário?")) {
-        const { error } = await supabaseClient.from('ramais').delete().eq('id', id);
-        if (error) showToast("Erro!", "error"); else { showToast("Excluído.", "success"); fetchUsers(); }
+      if(confirm("Tem certeza que deseja excluir este ramal?")) {
+        const { error } = await supabaseClient
+          .from('ramais')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          showToast("Erro ao excluir ramal.", "error");
+          console.error(error);
+        } else {
+          showToast("Ramal excluído.", "success");
+          fetchExtensions(); 
+        }
       }
     }
 
     let toastTimeout;
     function showToast(msg, type) {
       const toast = document.getElementById('toastContainer');
-      toast.innerText = msg; toast.style.backgroundColor = type === 'error' ? '#ef4444' : '#22c55e';
+      toast.innerText = msg;
+      toast.style.backgroundColor = type === 'error' ? '#ef4444' : '#22c55e';
       toast.classList.remove('hidden');
-      clearTimeout(toastTimeout); toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
+    // CSV Atualizado para respeitar também a visão focada em usuários
     function exportCSV() {
-      const header = ["Usuário", "Ramal", "Departamento", "Email"];
-      const rows = usersList.map(u => [u.nome, u.ramal, u.departamento, u.email || ""]);
-      const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";")).join("\n");
+      const header = ["Nome", "Ramais", "Departamento", "Email"];
+      
+      const usersMap = new Map();
+      extensions.forEach(ext => {
+        const key = ext.nome.trim();
+        if (!usersMap.has(key)) {
+          usersMap.set(key, { nome: ext.nome, departamento: ext.departamento, email: ext.email, ramais: [] });
+        }
+        usersMap.get(key).ramais.push(ext.ramal);
+      });
+
+      const rows = Array.from(usersMap.values()).map(u => [
+        u.nome, 
+        u.ramais.join(", "), 
+        u.departamento, 
+        u.email || ""
+      ]);
+      
+      const csv = [header, ...rows]
+        .map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";"))
+        .join("\n");
+      
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-      link.download = "usuarios.csv"; link.click();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "ramais.csv";
+      link.click();
     }
   </script>
 </body>
